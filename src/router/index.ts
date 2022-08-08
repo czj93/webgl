@@ -35,6 +35,14 @@ export const routes = [
                 },
             },
             {
+                path: 'primitive-self',
+                name: 'PrimitiveSelf',
+                component: () => import("../views/basic/Primitive-self.vue"),
+                meta: {
+                    title: '原始01',
+                },
+            },
+            {
                 path: "basic",
                 name: "Basic",
                 component: () => import("../views/basic/index.vue"),
