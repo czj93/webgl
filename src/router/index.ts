@@ -43,6 +43,14 @@ export const routes = [
                 },
             },
             {
+                path: 'matrix',
+                name: 'Matrix',
+                component: () => import('../views/basic/Matrix.vue'),
+                meta: {
+                    title: '矩阵-旋转',
+                },
+            },
+            {
                 path: "basic",
                 name: "Basic",
                 component: () => import("../views/basic/index.vue"),
