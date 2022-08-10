@@ -4,8 +4,26 @@
         <canvas style="border: 1px solid #222" />
     </div>
 
-    <span>{{ angleValue }}</span>
-    <input type="range" min="0" max="360" v-model="angleValue">
+    <div>
+        旋转：<span>{{ angleValue }}</span>
+        <input type="range" min="0" max="360" v-model="angleValue">
+    </div>
+    <div>
+        平移x:{{ mx }}
+        <input type="range" min="0" max="350" v-model="mx" />
+    </div>
+    <div>
+        平移y:{{ my }}
+        <input type="range" min="0" max="350" v-model="my" />
+    </div>
+    <div>
+        缩放x:{{ sx }}
+        <input type="range" min="0" max="2" step="0.01" v-model="sx" />
+    </div>
+    <div>
+        缩放y:{{ sy }}
+        <input type="range" min="0" max="2" step="0.01" v-model="sy" />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -14,7 +32,11 @@ import webglUtils from '../../utils/webglUtils'
 
 onMounted(main)
 
-const angleValue = ref(90)
+const angleValue = ref(0)
+const mx = ref(100)
+const my = ref(100)
+const sx = ref(1)
+const sy = ref(1)
 
 const m3 = {
     identity: function() {
@@ -23,6 +45,15 @@ const m3 = {
             0, 1, 0,
             0, 0, 1,
         ]
+    },
+
+    projection: function(width: number, height: number) {
+        // 注意：这个矩阵翻转了 Y 轴，所以 0 在上方
+        return [
+            2 / width, 0, 0,
+            0, -2 / height, 0,
+            -1, 1, 1
+        ];
     },
 
     translation: function(tx: number, ty: number) {
@@ -39,7 +70,7 @@ const m3 = {
         return [
             c, -s, 0,
             s,  c, 0,
-            0,  0, 0
+            0,  0, 1
         ]
     },
 
@@ -51,9 +82,18 @@ const m3 = {
         ]
     },
 
-    setRoration: function(angle: number) {
-        const angleDegress = 360 - angle * Math.PI / 180;
-        return this.rotation(angleDegress)
+    translate: function(m: Array<number>, tx: number, ty: number) {
+        return m3.multiply(m, this.translation(tx, ty));
+    },
+
+    rotate: function(m: Array<number>, angle: number) {
+        const angleDegress = (360 - angle) * Math.PI / 180;
+        return  m3.multiply(m, this.rotation(angleDegress))
+    },
+
+    
+    scale: function(m: Array<number>, sx: number, sy: number) {
+        return m3.multiply(m, this.scaling(sx, sy));
     },
 
     multiply: function(a: Array<number>, b: Array<number>) {
@@ -99,23 +139,11 @@ function main() {
         const vertexShaderSource = `
             // 一个属性值，将会从缓冲中获取数据
             attribute vec2 a_position;
-            uniform vec2 u_resolution;
             uniform mat3 u_matrix;
             
             // 所有着色器都有一个main方法
-            void main() {
-                
-                vec2 position = (u_matrix * vec3(a_position, 1)).xy;
-                // 从像素坐标转换到 0.0 到 1.0
-                vec2 zeroToOne = position / u_resolution;
-            
-                // 再把 0->1 转换 0->2
-                vec2 zeroToTwo = zeroToOne * 2.0;
-            
-                // 把 0->2 转换到 -1->+1 (裁剪空间)
-                vec2 clipSpace = zeroToTwo - 1.0;
-            
-                gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+            void main() {          
+                gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
             }
         `
 
@@ -135,7 +163,6 @@ function main() {
         if (!program) return
         // 从着色器程序中找到变量 a_position 的位置
         const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
-        const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
         const matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix')
         
         // 创建一个缓冲
@@ -151,16 +178,16 @@ function main() {
         // 向缓冲中存放数据
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
-        draw(gl, program, angleValue.value)
+        draw(gl, program)
         
         const animation = () => {
-            draw(gl, program, angleValue.value)
+            draw(gl, program)
             requestAnimationFrame(animation)
         }
 
         requestAnimationFrame(animation)
 
-        function draw(gl: WebGLRenderingContext, program: WebGLProgram, angle: number){
+        function draw(gl: WebGLRenderingContext, program: WebGLProgram){
             webglUtils.resize(gl)
 
             gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
@@ -174,20 +201,25 @@ function main() {
             // 可以从的缓冲中获取数据给着色器中的属性
             gl.enableVertexAttribArray(positionAttributeLocation)
 
-            var size = 2;          // 2 components per iteration
-            var type = gl.FLOAT;   // the data is 32bit floats
-            var normalize = false; // don't normalize the data
-            var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-            var offset = 0;        // start at the beginning of the buffer
+            var size = 2;          // 每次迭代使用两个单位数据
+            var type = gl.FLOAT;   // 使用浮点数
+            var normalize = false; // 是否对数据做归一化
+            var stride = 0;        // 0 = 移动距离 * 单位距离长度sizeof(type)  每次迭代跳多少距离到下一个数据
+            var offset = 0;        // 从绑定缓冲的起始处开始
             gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
-            gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-            let rotationMatrix = m3.setRoration(angle)
-            const translationMatrix = m3.translation(50, 100)
-            const moveOriginMatrix = m3.translation(-100, -100)
-            let matrix = m3.identity()
-            matrix = m3.multiply(translationMatrix, rotationMatrix);
-            // matrix = m3.multiply(matrix, rotationMatrix)
-            // matrix = m3.multiply(matrix, moveOriginMatrix)
+
+            let matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight)
+            // 平移
+            matrix = m3.translate(matrix, mx.value, my.value)
+            // 旋转
+            matrix = m3.rotate(matrix, angleValue.value)
+            // 缩放
+            matrix = m3.scale(matrix, sx.value, sy.value)
+            // 矩阵变化操作的顺序的变化是否会影响最终的结果?
+            // 平移变化是怎么改变旋转的圆心的?
+            // 改变旋转圆心
+            // matrix = m3.translate(matrix, -30, -50)
+
             gl.uniformMatrix3fv(matrixUniformLocation, false, matrix)
 
             var primitiveType = gl.TRIANGLES;
