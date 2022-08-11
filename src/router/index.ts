@@ -43,11 +43,11 @@ export const routes = [
                 },
             },
             {
-                path: 'matrix',
+                path: 'matrix-transform',
                 name: 'Matrix',
-                component: () => import('../views/basic/Matrix.vue'),
+                component: () => import('../views/matrix/Basic.vue'),
                 meta: {
-                    title: '矩阵-旋转',
+                    title: '矩阵-变换',
                 },
             },
             {
@@ -82,6 +82,14 @@ export const routes = [
                     title: '线段'
                 },
             },
+            {
+                path: 'matrix-3d-transform',
+                name: 'Matrix3dTransform',
+                component: () => import('../views/matrix/3d/index.vue'),
+                meta: {
+                    title: '矩阵-3d变换'
+                },
+            }
         ],
     },
 ]
