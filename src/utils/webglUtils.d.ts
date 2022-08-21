@@ -32,8 +32,17 @@ export interface UpdateAttribPointer {
     value: Float32Array;
 }
 
+export interface AttributeData {
+    data: Array<number>;
+    numComponents?: number;
+    type?: number;
+    normalize?: boolean;
+    stride?: number;
+    offset?: number;
+}
+
 export interface AttributeValues {
-    [key: string]: Array<number>
+    [key: string]: Array<number> | AttributeData
 }
 
 export interface OptMapping {

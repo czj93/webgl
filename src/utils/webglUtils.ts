@@ -1,4 +1,4 @@
-import { ProgramInfo, BufferType, BufferInfo, UsageBuffer, BufferData, UniformSetters, AttributeSetters, AttribPointer, AddAttribPointer, UpdateAttribPointer, AttributeValues, OptMapping } from './webglUtils.d'
+import { ProgramInfo, BufferType, BufferInfo, UsageBuffer, BufferData, UniformSetters, AttributeData, AttributeSetters, AttribPointer, AddAttribPointer, UpdateAttribPointer, AttributeValues, OptMapping } from './webglUtils.d'
 
 /**
  * 创建一个着色器程序
@@ -94,23 +94,56 @@ export function createBufferInfoFromArrays(gl: WebGLRenderingContext, arrays: At
     return bufferInfo
 }
 
+function isAttributeData(data: any): data is AttributeData {
+    if (!Array.isArray(data) && data.data) {
+        return true
+    }
+    return false
+}
+
 function createAttribsFromArrays(gl: WebGLRenderingContext, arrays: AttributeValues, optMapping?: OptMapping) {
     const mapping = optMapping || createMapping(arrays)
     const attribs: Record<string, AddAttribPointer> = {};
 
     Object.keys(mapping).forEach(attribName => {
         const bufferName = mapping[attribName];
-        const originValue = arrays[bufferName]
+        let originValue = arrays[bufferName]
         
+        // const flag = isAttributeData(originValue)
 
+        if (isAttributeData(originValue))  {
+            originValue = originValue.data
+        }
         const bufferData = makeTypedArray(originValue, bufferName)
         const buffer = createBufferFromTypedArray(gl, bufferData)
+        let type = getGLTypeForTypedArray(gl, bufferData)
+        let normalize = getNormalizationForTypedArray(bufferData)
+        let numComponents = guessNumComponentsFromName(bufferName, originValue.length)
+        let stride
+        let offset
+        
+
+        // 吐槽
+        // ts 这里必须重新定义一个变量 再执行一遍类型检查
+        // 直接使用 arrays[bufferName] 也不行
+        // 使用 flag 变量, 类型检查也无法通过
+        const originData = arrays[bufferName]
+        if (isAttributeData(originData)) {
+            if (originData.type) type = originData.type
+            if (originData.normalize) normalize = originData.normalize
+            if (originData.numComponents) numComponents = originData.numComponents
+            if (originData.stride) stride = originData.stride
+            if (originData.offset) offset = originData.offset
+        }
+
         if (buffer) {
             attribs[attribName] = {
                 buffer,
-                type: getGLTypeForTypedArray(gl, bufferData),
-                normalize: getNormalizationForTypedArray(bufferData),
-                numComponents: guessNumComponentsFromName(bufferName, originValue.length),
+                type,
+                normalize,
+                numComponents,
+                stride,
+                offset
             }
         }
     })
@@ -147,7 +180,7 @@ function guessNumComponentsFromName(name: string, length: number) {
     if (name.indexOf('coord') >= 0) {
       numComponents = 2;
     } else if (name.indexOf('color') >= 0) {
-      numComponents = 3;
+      numComponents = 4;
     } else {
       numComponents = 3;  // position, normals, indices ...
     }

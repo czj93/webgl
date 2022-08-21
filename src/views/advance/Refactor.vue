@@ -43,7 +43,10 @@ function main() {
 
 
         const attributes = {
-            color: sideColorData,
+            color: {
+                numComponents: 3,
+                data: sideColorData
+            },
             position: fGeometryData,
         }
 
