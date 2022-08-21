@@ -1,5 +1,14 @@
 export default {
 
+  identity: function() {
+    return [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ]
+  },
+
     // 这个矩阵还无法实现三维的透视效果
     projection: function(width: number, height: number, depth: number) {
       // Note: This matrix flips the Y axis so 0 is at the top.

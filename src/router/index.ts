@@ -89,6 +89,14 @@ export const routes = [
                 meta: {
                     title: '矩阵-3d变换'
                 },
+            },
+            {
+                path: 'advance/refactor',
+                name: 'Refactor',
+                component: () => import('../views/advance/Refactor.vue'),
+                meta: {
+                    title: '重构'
+                },
             }
         ],
     },
