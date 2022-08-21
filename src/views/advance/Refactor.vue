@@ -72,7 +72,7 @@ function main() {
             uniforms.u_matrix = m4.xRotate(uniforms.u_matrix, 30);
             uniforms.u_matrix = m4.yRotate(uniforms.u_matrix, 60);
 
-            webglUtils.setUniforms(programInfo.uniformSetters, uniforms)
+            webglUtils.setUniforms(programInfo, uniforms)
 
             gl.drawArrays(gl.TRIANGLES, 0, 16*6)
         }

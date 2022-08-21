@@ -80,6 +80,13 @@ export function createProgramFromShaderSource(gl: WebGLRenderingContext, vertexS
     }
 }
 
+/**
+ * 
+ * @param gl webgl 上下文
+ * @param arrays attribute变量信息对象
+ * @param optMapping 可选，attribute js 字段名 与 glsl 中变量名的映射关系
+ * @returns 
+ */
 export function createBufferInfoFromArrays(gl: WebGLRenderingContext, arrays: AttributeValues, optMapping?: OptMapping) {
     const bufferInfo = {
         attribs: createAttribsFromArrays(gl, arrays, optMapping),
@@ -182,6 +189,12 @@ function createProgramInfo(gl: WebGLRenderingContext, vertexShaderSource: string
     }
 }
 
+/**
+ * 设置 Attribute 变量
+ * @param gl 
+ * @param programInfo 
+ * @param bufferInfo 
+ */
 export function setBuffersAndAttributes(gl: WebGLRenderingContext, programInfo: ProgramInfo, bufferInfo: BufferInfo) {
 
     Object.keys(bufferInfo.attribs).forEach(name => {
@@ -192,7 +205,18 @@ export function setBuffersAndAttributes(gl: WebGLRenderingContext, programInfo: 
     })
 }
 
-export function setUniforms(setters: UniformSetters, ...values: Array<Record<string, Array<number>>>) {
+/**
+ * 设置 Uniform 变量
+ * 
+ * const uniforms = {
+ *      u_matrix: m4.identity()
+ * }
+ * 
+ * @param programInfo 
+ * @param values uniform 的变量值
+ */
+export function setUniforms(programInfo: ProgramInfo, ...values: Array<Record<string, Array<number>>>) {
+    const setters = programInfo.uniformSetters
     for (const uniforms of values) {
         Object.keys(uniforms).forEach(function(name) {
             const setter = setters[name];
