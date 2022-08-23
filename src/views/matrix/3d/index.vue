@@ -157,7 +157,7 @@ function main() {
             matrix = m4.xRotate(matrix, rx.value);
             matrix = m4.yRotate(matrix, ry.value);
             matrix = m4.zRotate(matrix, rz.value);
-            matrix = m4.scale(matrix, sz.value, sy.value, sz.value);
+            matrix = m4.scale(matrix, sx.value, sy.value, sz.value);
 
         // const matrix = [0.0026095039595996614, 0.0012356654739713428, -0.0031694184489966864, 0, 0.0018271943434997708, -0.00446336797695295, 0.0017042432096518146, 0, 0.0014854771941676605, 0.0033194496642141615, 0.0034713602200744193, 0, -0.8418277680140598, 0.14529914529914523, 0, 1]
 

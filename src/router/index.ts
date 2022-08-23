@@ -97,6 +97,14 @@ export const routes = [
                 meta: {
                     title: '重构'
                 },
+            },
+            {
+                path: 'advance/multiple-things',
+                name: 'MultipleThings',
+                component: () => import('../views/advance/multiple-things.vue'),
+                meta: {
+                    title: '多个物体'
+                },
             }
         ],
     },

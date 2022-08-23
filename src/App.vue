@@ -25,4 +25,9 @@ canvas {
   width: 350px;
   height: 350px;
 }
+
+.contral-wrap span {
+    display: inline-block;
+    width: 100px;
+}
 </style>
