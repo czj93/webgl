@@ -105,6 +105,14 @@ export const routes = [
                 meta: {
                     title: '多个物体'
                 },
+            },
+            {
+                path: 'advance/solar-system',
+                name: 'SolarSystem',
+                component: () => import('../views/advance/solar-system/index.vue'),
+                meta: {
+                    title: '场景-太阳系'
+                },
             }
         ],
     },

@@ -24,6 +24,7 @@ html, body {
 canvas {
   width: 350px;
   height: 350px;
+  border: 1px solid #666;
 }
 
 .contral-wrap span {
