@@ -20,8 +20,7 @@ export default class SolarNode {
 
     drawInfo?: DrawInfo
 
-    constructor(name: string, localMatrix?: Array<number>, drawInfo?: DrawInfo, updateFn?: (node:SolarNode) => void) {
-        this.name = name
+    constructor(localMatrix?: Array<number>, drawInfo?: DrawInfo, updateFn?: (node:SolarNode) => void) {
         if(localMatrix) this.localMatrix = localMatrix
         if(drawInfo) this.drawInfo = drawInfo
         if (updateFn) this.updateFn = updateFn

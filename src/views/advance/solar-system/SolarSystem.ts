@@ -7,7 +7,6 @@ import { ProgramInfo } from '../../../utils/webglUtils.d'
 
 export function createSolarSystem(gl: WebGLRenderingContext, programInfo: ProgramInfo) {
     const sun = new SolarNode(
-        'sun',
         m4.translation(0, 0, 0),
         {
             programInfo: programInfo,
@@ -24,7 +23,6 @@ export function createSolarSystem(gl: WebGLRenderingContext, programInfo: Progra
         }
     )
     const earth = new SolarNode(
-        'earth',
         m4.translation(100, 0, 0),
         {
             programInfo: programInfo,
@@ -41,7 +39,6 @@ export function createSolarSystem(gl: WebGLRenderingContext, programInfo: Progra
         }
     )
     const moonth = new SolarNode(
-        'moonth',
         m4.translation(-30, 0, 0),
         {
             programInfo: programInfo,
