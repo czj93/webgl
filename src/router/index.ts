@@ -130,14 +130,14 @@ export const routes = [
                     title: '场景-太阳系-绕中心旋转'
                 },
             },
-            // {
-            //     path: 'advance/solar-system-4',
-            //     name: 'SolarSystem4',
-            //     component: () => import('../views/advance/solar-system-4/index.vue'),
-            //     meta: {
-            //         title: '场景-太阳系-移动摄像机'
-            //     },
-            // }
+            {
+                path: 'advance/solar-system-4',
+                name: 'SolarSystem4',
+                component: () => import('../views/advance/solar-system-4/index.vue'),
+                meta: {
+                    title: '场景-太阳系-移动摄像机'
+                },
+            }
         ],
     },
 ]

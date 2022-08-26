@@ -395,10 +395,26 @@ function resize(gl: WebGLRenderingContext) {
       gl.canvas.height = displayHeight;
     }
   }
+
+function randColors(count: number, repeat = 1, defaultColors?: Array<Array<number>>) {
+    const colors = []
+
+    for(let i = 0; i < count; i++) {
+        const r = defaultColors && defaultColors[i] ? defaultColors[i][0] : Math.floor(Math.random() * 255)
+        const g = defaultColors && defaultColors[i] ? defaultColors[i][1] : Math.floor(Math.random() * 255)
+        const b = defaultColors && defaultColors[i] ? defaultColors[i][2] : Math.floor(Math.random() * 255)
+
+        for(let n = 0 ; n < repeat; n++) {
+            colors.push(r, g, b)
+        }
+    }
+    return colors
+}
   
 
 export default {
     resize,
+    randColors,
     createShader,
     createProgram,
     setUniforms,

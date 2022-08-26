@@ -19,7 +19,7 @@ import SideBar from '../components/SideBar.vue'
     justify-content: flex-start;
 }
 .left-side {
-    flex-basis: 160px;
+    flex-basis: 280px;
 }
 .content {
     flex: 1;

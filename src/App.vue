@@ -29,6 +29,6 @@ canvas {
 
 .contral-wrap span {
     display: inline-block;
-    width: 100px;
+    width: 130px;
 }
 </style>
