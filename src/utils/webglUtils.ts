@@ -81,7 +81,7 @@ export function createProgramFromShaderSource(gl: WebGLRenderingContext, vertexS
 }
 
 /**
- * 
+ * numComponents 默认是 3
  * @param gl webgl 上下文
  * @param arrays attribute变量信息对象
  * @param optMapping 可选，attribute js 字段名 与 glsl 中变量名的映射关系
@@ -410,9 +410,30 @@ function randColors(count: number, repeat = 1, defaultColors?: Array<Array<numbe
     }
     return colors
 }
+
+function radToDeg(r: number) {
+    return r * 180 / Math.PI;
+}
+
+function degToRad(d: number) {
+    return d * Math.PI / 180;
+}
+
+function getWebGLContext(id?: string) {
+    const seletor = id || 'canvas' 
+    const canvas =  document.querySelector(seletor)
+    if (canvas) {
+        const gl = (canvas as HTMLCanvasElement).getContext('webgl')
+        return gl
+    }
+    return null
+}
   
 
 export default {
+    radToDeg,
+    degToRad,
+    getWebGLContext,
     resize,
     randColors,
     createShader,
