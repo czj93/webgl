@@ -42,6 +42,8 @@ import { createSolarSystem } from './SolarSystem'
 onMounted(main)
 
 // 优化：
+// 添加摄像机，并可以自由控制摄像机视角
+// 参考资料 https://webglfundamentals.org/webgl/lessons/zh_cn/webgl-3d-camera.html
 
 const tx = ref(0)
 const ty = ref(-175)
