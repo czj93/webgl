@@ -115,6 +115,14 @@ export const routes = [
                 },
             },
             {
+                path: 'lighting-point',
+                name: 'LightingPoint',
+                component: () => import('../views/basic/LightingPoint.vue'),
+                meta: {
+                    title: '光照-点光源'
+                },
+            },
+            {
                 path: 'advance/solar-system',
                 name: 'SolarSystem',
                 component: () => import('../views/advance/solar-system/index.vue'),
