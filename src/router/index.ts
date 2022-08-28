@@ -99,19 +99,19 @@ export const routes = [
                 },
             },
             {
-                path: 'lighting',
-                name: 'Lighting',
-                component: () => import('../views/basic/Lighting.vue'),
-                meta: {
-                    title: '光照-平行光'
-                },
-            },
-            {
                 path: 'advance/multiple-things',
                 name: 'MultipleThings',
                 component: () => import('../views/advance/multiple-things.vue'),
                 meta: {
                     title: '多个物体'
+                },
+            },
+            {
+                path: 'lighting',
+                name: 'Lighting',
+                component: () => import('../views/basic/Lighting.vue'),
+                meta: {
+                    title: '光照-平行光'
                 },
             },
             {

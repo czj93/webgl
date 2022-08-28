@@ -88,11 +88,11 @@ const fragementShaderSource = `
         vec3 normal = normalize(v_normal);
 
         // 将法线和光照方向点乘， 得到法线和光照的夹角余弦值
-        // light 可以理解为关注强度
+        // light 可以理解为光照强度
         float light = dot(normal, u_reverseLightDirection);
 
         gl_FragColor = v_color;
-
+        // 将颜色乘上光照强度 就可得到最终的颜色了
         gl_FragColor.rgb *= light;
     }
 `
