@@ -99,6 +99,14 @@ export const routes = [
                 },
             },
             {
+                path: 'advance/image',
+                name: 'Image',
+                component: () => import('../views/basic/Image.vue'),
+                meta: {
+                    title: '图片纹理'
+                },
+            },
+            {
                 path: 'advance/multiple-things',
                 name: 'MultipleThings',
                 component: () => import('../views/advance/multiple-things.vue'),
