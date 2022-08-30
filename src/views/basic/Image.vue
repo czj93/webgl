@@ -7,22 +7,22 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import webglUtils from '../../utils/webglUtils';
-import m4 from '../matrix/3d/m4';
+import m3 from '../../utils/m3';
 
 onMounted(main)
 
 const vertexShaderSource = `
-    attribute vec4 a_position;
+    attribute vec3 a_position;
     attribute vec2 a_texCoord;
     varying vec2 v_texCoord;
 
-    uniform mat4 u_matrix;
+    uniform mat3 u_matrix;
     
     void main() {
-        gl_Position = u_matrix * a_position;
+        gl_Position = vec4((u_matrix * a_position).xy, 0, 1);
         // 将纹理坐标传给片断着色器
         // GPU会在点之间进行插值
-        //v_texCoord = a_texCoord;
+        v_texCoord = a_texCoord;
     }
 `
 
@@ -37,8 +37,8 @@ const fragementShaderSource = `
     
     void main() {
         // 在纹理上寻找对应颜色值
-        //gl_FragColor = texture2D(u_image, v_texCoord);
-        gl_FragColor = vec4(0, 1, 0, 1);
+        gl_FragColor = texture2D(u_image, v_texCoord);
+       //gl_FragColor = vec4(0, 1, 0, 1);
         
     }
 `
@@ -78,11 +78,14 @@ function render(image: HTMLImageElement, gl: WebGLRenderingContext) {
             1.0,  0.0,
             1.0,  1.0,
         ],
-        position: setRectangle(0, 0, image.width, image.height)
+        position: {
+            numComponents: 2,
+            data: setRectangle(0, 0, image.width, image.height),
+        }
     }
 
     const uniforms = {
-        u_matrix: m4.identity()
+        u_matrix: m3.identity()
     }
 
     const programInfo = webglUtils.createProgramInfo(gl, vertexShaderSource, fragementShaderSource)
@@ -92,7 +95,7 @@ function render(image: HTMLImageElement, gl: WebGLRenderingContext) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    uniforms.u_matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
+    uniforms.u_matrix = m3.projection(gl.canvas.clientWidth, gl.canvas.clientHeight);
 
 
     if (programInfo?.program) {
@@ -102,6 +105,9 @@ function render(image: HTMLImageElement, gl: WebGLRenderingContext) {
          // Create a texture.
         var texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // const sampler = gl.getUniformLocation(programInfo.program, "u_image"); // 获取纹理采样器索引 
+        // gl.uniform1i(sampler, 0); 
 
         // Set the parameters so we can render any size image.
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
