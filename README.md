@@ -62,3 +62,13 @@ function computeCameraMatrix() {
     return cameraMatrix
 }
 ```
+
+## 纹理
+
+    全局变量默认为 0 所以 u_image 默认使用纹理单元 0 。 纹理单元 0 默认为当前活跃纹理，所以调用 bindTexture 会将纹理绑定到单元 0 。
+
+
+## 绘制地球
+
+    参考资料：
+        [使用webgl 绘制一个地球3—纹理贴图](https://zhuanlan.zhihu.com/p/435839686)

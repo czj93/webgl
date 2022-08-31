@@ -99,6 +99,14 @@ export const routes = [
                 },
             },
             {
+                path: 'basic/cube',
+                name: 'Cube',
+                component: () => import('../views/basic/Cube.vue'),
+                meta: {
+                    title: '正方形'
+                },
+            },
+            {
                 path: 'advance/image',
                 name: 'Image',
                 component: () => import('../views/basic/Image.vue'),

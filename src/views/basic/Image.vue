@@ -11,15 +11,19 @@ import m3 from '../../utils/m3';
 
 onMounted(main)
 
+// 全局变量默认为 0 所以 u_image 默认使用纹理单元 0 。 
+// 纹理单元 0 默认为当前活跃纹理，所以调用 bindTexture 会将纹理绑定到单元 0 。
+
 const vertexShaderSource = `
-    attribute vec3 a_position;
+    attribute vec2 a_position;
     attribute vec2 a_texCoord;
     varying vec2 v_texCoord;
 
     uniform mat3 u_matrix;
     
     void main() {
-        gl_Position = vec4((u_matrix * a_position).xy, 0, 1);
+        //gl_Position = vec4((u_matrix * a_position).xy, 0, 1);
+        gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
         // 将纹理坐标传给片断着色器
         // GPU会在点之间进行插值
         v_texCoord = a_texCoord;
@@ -37,7 +41,7 @@ const fragementShaderSource = `
     
     void main() {
         // 在纹理上寻找对应颜色值
-        gl_FragColor = texture2D(u_image, v_texCoord);
+       gl_FragColor = texture2D(u_image, v_texCoord);
        //gl_FragColor = vec4(0, 1, 0, 1);
         
     }
@@ -92,6 +96,7 @@ function render(image: HTMLImageElement, gl: WebGLRenderingContext) {
     const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, attributes)
 
     webglUtils.resize(gl)
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -106,6 +111,9 @@ function render(image: HTMLImageElement, gl: WebGLRenderingContext) {
         var texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
 
+        // 没有设置 u_image 的全局变量, 但是着色器中却使用了 u_image 不报错
+        // 全局变量默认为 0 所以 u_image 默认使用纹理单元 0 。 
+        // 纹理单元 0 默认为当前活跃纹理，所以调用 bindTexture 会将纹理绑定到单元 0 。
         // const sampler = gl.getUniformLocation(programInfo.program, "u_image"); // 获取纹理采样器索引 
         // gl.uniform1i(sampler, 0); 
 

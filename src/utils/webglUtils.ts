@@ -177,9 +177,9 @@ function makeTypedArray(value: Array<number>, name: string) {
 
 function guessNumComponentsFromName(name: string, length: number) {
     let numComponents;
-    if (name.indexOf('coord') >= 0) {
+    if (name.toLocaleLowerCase().indexOf('coord') >= 0) {
       numComponents = 2;
-    } else if (name.indexOf('color') >= 0) {
+    } else if (name.toLocaleLowerCase().indexOf('color') >= 0) {
       numComponents = 4;
     } else {
       numComponents = 3;  // position, normals, indices ...
