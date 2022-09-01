@@ -115,6 +115,14 @@ export const routes = [
                 },
             },
             {
+                path: 'advance/image2',
+                name: 'Image2',
+                component: () => import('../views/basic/Image2.vue'),
+                meta: {
+                    title: '多个纹理'
+                },
+            },
+            {
                 path: 'advance/multiple-things',
                 name: 'MultipleThings',
                 component: () => import('../views/advance/multiple-things.vue'),

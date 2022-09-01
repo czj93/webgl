@@ -67,6 +67,43 @@ function computeCameraMatrix() {
 
     全局变量默认为 0 所以 u_image 默认使用纹理单元 0 。 纹理单元 0 默认为当前活跃纹理，所以调用 bindTexture 会将纹理绑定到单元 0 。
 
+```js
+const image = new Image()
+
+// 创建贴图
+var texture = gl.createTexture();
+// 绑定纹理  TEXTURE_2D/二维纹理 TEXTURE_CUBE_MAP/立方体映射纹理
+gl.bindTexture(gl.TEXTURE_2D, texture);
+
+// 设置纹理参数
+// Set the parameters so we can render any size image.
+// texParameteri(target, pname, param)
+// target/类型  pname/参数 param/参数值
+// https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext/texParameter
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+
+// 给纹理绑定图片
+// Upload the image into the texture.
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+
+// 如果只有一个纹理，可以不需要以下代码
+// 全局变量默认为0， 所以 u_image 默认使用纹理单元0
+var u_image0Location = gl.getUniformLocation(programInfo.program, "u_image");
+
+gl.uniform1i(u_image0Location, 0);
+
+gl.activeTexture(gl.TEXTURE0);
+gl.bindTexture(gl.TEXTURE_2D, textures[0]);
+
+```
+
+    1. 为什么要执行两遍 bindTexture 方法？ 入参还不同，API设计的好奇怪，太难理解了
+
 
 ## 绘制地球
 
