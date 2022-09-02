@@ -107,6 +107,14 @@ export const routes = [
                 },
             },
             {
+                path: 'basic/ball',
+                name: 'Ball',
+                component: () => import('../views/advance/Ball.vue'),
+                meta: {
+                    title: '球形'
+                },
+            },
+            {
                 path: 'advance/image',
                 name: 'Image',
                 component: () => import('../views/basic/Image.vue'),
@@ -128,6 +136,14 @@ export const routes = [
                 component: () => import('../views/advance/multiple-things.vue'),
                 meta: {
                     title: '多个物体'
+                },
+            },
+            {
+                path: 'advance/cube-3d-texture',
+                name: 'Cube3dTexture',
+                component: () => import('../views/advance/Cube3dTexture.vue'),
+                meta: {
+                    title: '立方体-纹理'
                 },
             },
             {
