@@ -428,6 +428,30 @@ function getWebGLContext(id?: string) {
     }
     return null
 }
+
+function loadImage(src: string, callback: (this: GlobalEventHandlers, ev: Event) => any) {
+    const image = new Image()
+    image.src = src
+    image.onload = callback;
+    return image
+}
+
+function loadImages(urls: Array<string>, callback: (images: Array<HTMLImageElement>) => void) {
+  var images: Array<HTMLImageElement> = [];
+  var imagesToLoad = urls.length;
+
+  var onImageLoad = function() {
+    --imagesToLoad;
+    if (imagesToLoad === 0) {
+      callback(images);
+    }
+  };
+
+  for (var ii = 0; ii < imagesToLoad; ++ii) {
+    var image = loadImage(urls[ii], onImageLoad);
+    images.push(image);
+  }
+}
   
 
 export default {
@@ -442,5 +466,6 @@ export default {
     setBuffersAndAttributes,
     createProgramInfo,
     createBufferInfoFromArrays,
-    createProgramFromShaderSource
+    createProgramFromShaderSource,
+    loadImages
 }

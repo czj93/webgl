@@ -139,6 +139,14 @@ export const routes = [
                 },
             },
             {
+                path: 'advance/earth',
+                name: 'Earth',
+                component: () => import('../views/advance/Earth.vue'),
+                meta: {
+                    title: '地球'
+                },
+            },
+            {
                 path: 'advance/cube-3d-texture',
                 name: 'Cube3dTexture',
                 component: () => import('../views/advance/Cube3dTexture.vue'),
