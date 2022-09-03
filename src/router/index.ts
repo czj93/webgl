@@ -171,6 +171,14 @@ export const routes = [
                 },
             },
             {
+                path: 'advance/earth-rotation-light',
+                name: 'EarthRotationLight',
+                component: () => import('../views/advance/EarthRotation.vue'),
+                meta: {
+                    title: '地球自转太阳光'
+                },
+            },
+            {
                 path: 'advance/solar-system',
                 name: 'SolarSystem',
                 component: () => import('../views/advance/solar-system/index.vue'),
