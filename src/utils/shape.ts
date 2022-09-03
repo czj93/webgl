@@ -143,6 +143,7 @@ export function sphere(uPieces: number, vPieces: number): Record<string, Array<n
 
     let positions = []
     let uvs = []
+    let normals = []
 
     for(let i = 0; i < vPieces; i++) {
         for(let j = 0; j < uPieces; j++) {
@@ -153,11 +154,13 @@ export function sphere(uPieces: number, vPieces: number): Record<string, Array<n
 
             positions.push(...p1.position, ...p2.position, ...p3.position, ...p1.position, ...p3.position, ...p4.position)
             uvs.push(...p1.uv, ...p2.uv, ...p3.uv, ...p1.uv, ...p3.uv, ...p4.uv)
+            normals.push(...p1.position, ...p2.position, ...p3.position, ...p1.position, ...p3.position, ...p4.position)
         }
     }
 
     return {
         uvs,
+        normals,
         positions
     }
 }

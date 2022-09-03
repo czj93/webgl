@@ -7,31 +7,49 @@
         <div class="contral-wrap">
             <div>
                 <span>平移x: {{ tx }}</span>
-                <input type="range" min="0" max="350" v-model="tx" />
+                <input type="range" min="-350" max="350" v-model="tx" />
             </div>
             <div>
                 <span>平移y: {{ ty }}</span>
-                <input type="range" min="0" max="350" v-model="ty" />
+                <input type="range" min="-350" max="350" v-model="ty" />
             </div>
             <div>
                 <span>平移z: {{ tz }}</span>
-                <input type="range" min="0" max="350" v-model="tz" />
+                <input type="range" min="-350" max="350" v-model="tz" />
             </div>
             <div>
                 <span>旋转x: {{ rx }}</span>
-                <input type="range" min="0" max="360" step="0.1" v-model="rx">
+                <input type="range" min="-360" max="360" step="0.1" v-model="rx">
             </div>
             <div>
                 <span>旋转y: {{ ry }}</span>
-                <input type="range" min="0" max="360" step="0.1" v-model="ry">
+                <input type="range" min="-360" max="360" step="0.1" v-model="ry">
             </div>
             <div>
                 <span>旋转z: {{ rz }}</span>
-                <input type="range" min="0" max="360" step="0.1" v-model="rz">
+                <input type="range" min="-360" max="360" step="0.1" v-model="rz">
             </div>
             <div>
                 <span>缩放: {{ ss }}</span>
                 <input type="range" min="0" max="1000" step="1" v-model="ss" />
+            </div>
+
+            <div>操作相机</div>
+            <div>
+                <span>相机深度: {{ ctz }}</span>
+                <input type="range" min="0" max="2000" v-model="ctz" />
+            </div>
+            <div>
+                <span>X轴旋转: {{ crx }}</span>
+                <input type="range" min="-360" max="360" step="0.1" v-model="crx" />
+            </div>
+            <div>
+                <span>Y轴旋转: {{ cry }}</span>
+                <input type="range" min="-360" max="360" step="0.1" v-model="cry" />
+            </div>
+            <div>
+                <span>Z轴旋转: {{ crz }}</span>
+                <input type="range" min="-360" max="360" step="0.1" v-model="crz" />
             </div>
         </div>
     </div>
@@ -39,33 +57,46 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import m4 from '../../utils/m4';
-import webglUtils from '../../utils/webglUtils'
 import { sphere } from '../../utils/shape'
+import webglUtils from '../../utils/webglUtils'
 
 onMounted(main)
 
 // ISSUE: 运行一段时间后会内存奔溃
 
-const tx = ref(175)
-const ty = ref(175)
+const tx = ref(0)
+const ty = ref(0)
 const tz = ref(0)
 
-const ss = ref(150)
+const ss = ref(300)
 
-const rx = ref(30)
-const ry = ref(286)
+const rx = ref(0)
+const ry = ref(0)
 const rz = ref(0)
 
+const ctz = ref(800)
+
+const crx = ref(0)
+const cry = ref(0)
+const crz = ref(180)
+
+var fieldOfViewRadians = webglUtils.degToRad(60);
+var fRotationRadians = 0;
   
 const vertexShaderSource = `
     attribute vec4 a_position;
     attribute vec2 a_texcoord;
+    attribute vec3 a_normal;
     varying vec2 v_texcoord;
+    varying vec3 v_normal;
     uniform mat4 u_matrix;
+    uniform mat4 u_worldViewProjection;
+    uniform mat4 u_worldInverseTransposeMatrix;
 
     void main() {
-        gl_Position = u_matrix * a_position;
+        gl_Position = u_worldViewProjection * a_position;
         v_texcoord = a_texcoord;
+        v_normal = mat3(u_worldInverseTransposeMatrix) * a_normal;
     }
 `
   
@@ -74,14 +105,27 @@ const fragementShaderSource = `
     // 设置精度
     precision mediump float;
     uniform sampler2D u_image;
+    uniform vec3 u_reverseLightDirection;
 
     varying vec2 v_texcoord;
+    varying vec3 v_normal;
 
     void main() {
         // gl_FragColor = vec4(1, 0, 0, 1);
+        vec3 normal = normalize(v_normal);
+        float light = dot(normal, u_reverseLightDirection);
         gl_FragColor = texture2D(u_image, v_texcoord);
+        gl_FragColor.rgb *= light;
     }
 `
+
+function computeCameraMatrix() {
+    var cameraMatrix = m4.xRotation(webglUtils.degToRad(crx.value));
+    cameraMatrix = m4.yRotate(cameraMatrix, cry.value)
+    cameraMatrix = m4.zRotate(cameraMatrix, crz.value)
+    cameraMatrix = m4.translate(cameraMatrix, 0, 0, ctz.value);
+    return cameraMatrix
+}
 
 
 function main() {
@@ -95,18 +139,22 @@ function main() {
         })
 
         function render(gl: WebGLRenderingContext, images: Array<HTMLImageElement>) {
-            const uNumber = 60
-            const vNumber = 60
+            const uNumber = 180
+            const vNumber = 180
             
             const EarthInfo = sphere(uNumber, vNumber)
 
             const attributes = {
                 texcoord: EarthInfo.uvs,
+                normal: EarthInfo.normals,
                 position: EarthInfo.positions,
             }
 
             const uniforms = {
-                u_matrix: m4.identity()
+                u_matrix: m4.identity(),
+                u_worldViewProjection: m4.identity(),
+                u_worldInverseTransposeMatrix: m4.identity(),
+                u_reverseLightDirection: m4.normalize([-1, 0, 0]),
             }
 
             const programInfo = webglUtils.createProgramInfo(gl, vertexShaderSource, fragementShaderSource)
@@ -143,19 +191,34 @@ function main() {
                 gl.enable(gl.CULL_FACE)
                 gl.enable(gl.DEPTH_TEST)
 
+                const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+                const zNear = 1;
+                const zFar = 2000;
+                const projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+
+                const cameraMatrix = computeCameraMatrix()
+
+                const viewMatrix = m4.inverse(cameraMatrix);
+
+                const viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix)
+
+                let worldMatrix = m4.identity()
+                
+                worldMatrix = m4.translate(worldMatrix, tx.value, ty.value, tz.value);
+                worldMatrix = m4.xRotate(worldMatrix, rx.value);
+                worldMatrix = m4.yRotate(worldMatrix, time);
+                worldMatrix = m4.zRotate(worldMatrix, rz.value);
+                worldMatrix = m4.scale(worldMatrix, ss.value, ss.value, ss.value)
+
+                const worldInverseMatrix = m4.inverse(worldMatrix);
+
+                uniforms.u_worldViewProjection = m4.multiply(viewProjectionMatrix, worldMatrix)
+                uniforms.u_worldInverseTransposeMatrix = m4.transpose(worldInverseMatrix);
+
                 if (programInfo?.program) {
                     gl.useProgram(programInfo.program)
 
                     webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo)
-
-                    uniforms.u_matrix = m4.projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 1000);
-                    uniforms.u_matrix = m4.translate(uniforms.u_matrix, tx.value, ty.value, tz.value);
-                    uniforms.u_matrix = m4.xRotate(uniforms.u_matrix, rx.value);
-                    uniforms.u_matrix = m4.yRotate(uniforms.u_matrix, time)
-                    // uniforms.u_matrix = m4.yRotate(uniforms.u_matrix, ry.value);
-                    uniforms.u_matrix = m4.zRotate(uniforms.u_matrix, rz.value);
-                    uniforms.u_matrix = m4.scale(uniforms.u_matrix, ss.value, ss.value, ss.value);
-
 
                     webglUtils.setUniforms(programInfo, uniforms)
 
