@@ -110,5 +110,9 @@ gl.bindTexture(gl.TEXTURE_2D, textures[0]);
 
 ## 绘制地球
 
+    pixelStorei 通过 pixelStorei 翻转图片，必须在纹理绑定图片（texImage2D）之前执行才会生效
+
+    纹理绑定图片 texImage2D，不应该放在redner中执行，持续执行texImage2D会导致浏览器奔溃
+
     参考资料：
         [使用webgl 绘制一个地球3—纹理贴图](https://zhuanlan.zhihu.com/p/435839686)

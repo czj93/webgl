@@ -114,6 +114,23 @@ function main() {
             const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, attributes)
             if (!programInfo) return
 
+            var texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+            // pixelStorei 图像预处理的函数
+            // 图片上下对称翻转坐标轴
+            // 解决坐标系 Y 轴翻转导致的纹理渲染异常（Y轴翻转）
+            // https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext/pixelStorei
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1)
+            
+            // 给纹理绑定图片
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[0]);
+
             requestAnimationFrame(drawSence)
 
             function drawSence(time: number) {
@@ -141,22 +158,6 @@ function main() {
 
 
                     webglUtils.setUniforms(programInfo, uniforms)
-                    // pixelStorei 图像预处理的函数
-                    // 图片上下对称翻转坐标轴
-                    // 解决坐标系 Y 轴翻转导致的纹理渲染异常（Y轴翻转）
-                    // https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext/pixelStorei
-                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1)
-
-                    var texture = gl.createTexture();
-                    gl.bindTexture(gl.TEXTURE_2D, texture);
-                    
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-                    
-                    // 给纹理绑定图片
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, images[0]);
 
                     gl.drawArrays(gl.TRIANGLES, 0, 6 * uNumber * vNumber)
 
